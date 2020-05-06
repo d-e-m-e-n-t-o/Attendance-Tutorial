@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html>
-  <head>
-   <title><%= full_title(yield(:title)) %></title> <!--yieldメソッドでprovideの値を受け取れる。-->
-    <%= csrf_meta_tags %>
+	<head>
+	 <title><%= full_title(yield(:title)) %></title> <!--yieldメソッドでprovideの値を受け取れる。-->
+		<%= csrf_meta_tags %>
 
-    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-  </head>
-
-  <body>
-    <%= yield %>
-  </body>
+		<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+		<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+	
+		<%= render 'layouts/shim' %> <!--renderメソッドは呼び出すテンプレート（ビュー）ファイルを指定できる-->
+	  <!--この場合layoutsフォルダーの_shim.html.erbを指定して呼び出す。-->
+	</head>
+	
+	<body>
+	  <%= render 'layouts/header' %>
+		  <div class="container">
+			  <%= yield %>
+			</div>
+	</body>
 </html>
