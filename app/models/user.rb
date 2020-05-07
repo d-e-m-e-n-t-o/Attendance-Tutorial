@@ -11,6 +11,10 @@ class User < ApplicationRecord
                     uniqueness: true
                     # uniqueness: trueは一意性の検証を行っている。一意とは(他に同じデータがない)ということ
 has_secure_password
-# Userモデルにpassword_digestカラムを追加し、bcryptgemを追加して使えるようになる
+# Userモデル(schemaファイル)にpassword_digestカラムを追加し、bcryptをgemファイルに追加して使えるようになる
+# has_secure_passwordがやってくれること
+# ・モデルにpassword属性とpassword_confirmation属性の追加
+# ・それら属性のvalidation(存在性とそれら属性値の一致を検証)
+# ・authenticateメソッドの追加
 validates :password, presence: true, length: { minimum: 6 }# minimumは最小文字数制限
 end
