@@ -1,4 +1,8 @@
 class User < ApplicationRecord
+  
+  # 「remember_token」という仮想の属性を作成します。
+  attr_accessor :remember_token
+  
   before_save { self.email = email.downcase } # メールアドレスの大文字小文字を区別せず小文字として登録。
   #　before_saveメソッドに現在のメールアドレス（self.email）の値をdowncaseメソッドを使って小文字に変換。
   validates :name, presence: true, length: { maximum: 50 }# maximumは最大文字数制限
@@ -17,4 +21,44 @@ has_secure_password
 # ・それら属性のvalidation(存在性とそれら属性値の一致を検証)
 # ・authenticateメソッドの追加
 validates :password, presence: true, length: { minimum: 6 }# minimumは最小文字数制限
+
+# 。ハッシュ化する処理、渡された文字列のハッシュ値を返す。入れる値が同じなら、ハッシュ値も同じ
+  def User.digest(string)
+    cost = 
+      if ActiveModel::SecurePassword.min_cost
+        BCrypt::Engine::MIN_COST
+      else
+        BCrypt::Engine.cost
+      end
+    BCrypt::Password.create(string, cost: cost)
+  end
+  # 値を入れるとランダムな値に変換してくれる処理
+  def User.new_token
+    SecureRandom.urlsafe_base64
+  end
+  
+    # 永続セッションのためハッシュ化したトークンをデータベースに記憶します。
+  def remember
+    self.remember_token = User.new_token
+    # User.new_tokenで生成した「ランダムな文字列を」selfを用いてremember_tokenに代入している。
+    # seifがないと、単純にremember_tokenというローカル変数が作成されてしまう。
+    update_attribute(:remember_digest, User.digest(remember_token))
+    # remember_tokenの値がUser.digest(remember_token)に渡されUser.digest(string)が発動し
+    # ハッシュ化される。update_attributeメソッドを使ってremember_digestを更新する。
+    # update_attributeはバリデーションを無死することが出来る。
+  end
+  
+  # cookiesに保存されているremember_tokenがデータベースにあるremember_digestと一致するかを確認。
+  def authenticated?(remember_token)
+    # authenticated?の?はメソッド名の一部で真偽値を返すタイプのメソッドに用いる。
+    return false if remember_digest.nil?
+    # remember_digestが存在しない場合はfalseを返して終了。勤怠チュートリアル7.2を参照。
+    BCrypt::Password.new(remember_digest).is_password?(remember_token)
+  end
+  
+  #remember_digestをnilに更新することでデータベースのログイン情報を破棄している。
+  def forget
+    update_attribute(:remember_digest, nil)
+  end
+  
 end
