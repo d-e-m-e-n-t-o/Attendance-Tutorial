@@ -20,7 +20,11 @@ has_secure_password
 # ・モデルにpassword属性とpassword_confirmation属性の追加
 # ・それら属性のvalidation(存在性とそれら属性値の一致を検証)
 # ・authenticateメソッドの追加
-validates :password, presence: true, length: { minimum: 6 }# minimumは最小文字数制限
+validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+# minimumは最小文字数制限
+# ユーザー編集ページでパスワード未入力でも更新出来るよう、allow_nil: trueオプションを使う。対象の値が
+# nilの場合にバリデーションをスキップ出来る。has_secure_passwordがオブジェクト生成時に存在性を検証する
+# ようになっているので、問題なく動作する。
 
 # 。ハッシュ化する処理、渡された文字列のハッシュ値を返す。入れる値が同じなら、ハッシュ値も同じ
   def User.digest(string)

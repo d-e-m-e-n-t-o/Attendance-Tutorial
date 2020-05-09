@@ -52,10 +52,32 @@ module SessionsHelper
     end
   end
   
+  # 渡されたユーザーがログイン済みのユーザーであればtrueを返します。
+  def current_user?(user)
+    user == current_user
+  end
+  
   # 現在ログイン中のユーザーがいればtrue、そうでなければfalseを返します。
   # current_userは空じゃなかったらtrueに否定演算子!が付いている
   def logged_in?
     !current_user.nil?
+  end
+  
+  # 記憶しているURL(またはデフォルトURL)にリダイレクトします。
+  def redirect_back_or(default_url)
+    # まず、引数でデフォルトのurlを渡す。
+    redirect_to(session[:forwarding_url] || default_url)
+    # ession[:forwarding_url]がnilならdefault_urlにリダイレクト、nilでなければsession[:forwarding_url]
+    # にリダイレクトする。
+    session.delete(:forwarding_url)
+    # 直後にsession.delete(:forwarding_url)で一時的セッションを破棄し,次回ログインした時に
+    # 記憶されているURLへ転送されることを防ぐ。
+  end
+
+  # アクセスしようとしたURLを記憶します。
+  def store_location
+    session[:forwarding_url] = request.original_url if request.get?
+    
   end
   
 end

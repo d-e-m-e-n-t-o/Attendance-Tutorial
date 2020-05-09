@@ -1,0 +1,25 @@
+<%= form_with(model: @user, local: true) do |f| %>
+<!--form_withメソッドは簡単にフォームを生成することができる。同時に、入力値の送信先もシンプルに
+設定でき、コントローラへのデータ引き継ぎもスムーズに行うことがでる。-->
+  <%= render 'shared/error_messages', object: @user %>
+  <!--renderメソッドは呼び出すビューを指定しレンダリングすることが出来る。この場合はエラーメッセージ
+  を表示している。-->
+  <%= f.label :name, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :name, class: "form-control" %>
+  <!--ブロック変数のfはhtml要素に対応するメソッドが呼び出されると、@userカラムの値を設定できるhtmlを
+  設計し返してくれる。-->
+  <!--上記の2行のhtmlに変換すると<label class="label-#{yield(:class_text) for="user_name">Name</label>
+  <input class="form-control" type="text" name="user[name]" />をとなり、これを返してくれる。-->
+  <!--クロームのブラウザで検証を行うとhtmlが確認できる。-->
+
+  <%= f.label :email, class: "label-#{yield(:class_text)}" %>
+  <%= f.email_field :email, class: "form-control" %>
+
+  <%= f.label :password, class: "label-#{yield(:class_text)}" %>
+  <%= f.password_field :password, class: "form-control" %>
+
+  <%= f.label :password_confirmation, "Confirmation", class: "label-#{yield(:class_text)}" %>
+  <%= f.password_field :password_confirmation, class: "form-control" %>
+
+  <%= f.submit yield(:button_text), class: "btn btn-primary btn-block btn-#{yield(:class_text)}" %>
+<% end %>
