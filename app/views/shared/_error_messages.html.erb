@@ -2,7 +2,8 @@
 <!--エラーが発生しているかの条件分岐-->
   <div id="error_explanation">
     <div class="alert alert-danger">
-      The form contains <%= pluralize(@user.errors.count, "error") %>.
+      入力エラーが<%= @user.errors.count %>件ありました。
+      <!--The form contains <%= pluralize(@user.errors.count, "error") %>.
       <!--@user.errors.countにエラーの数が入る。pluralizeメソッドは最初の引数に整数が与えられると、
       それに基づき2番目の引数で指定した英単語を複数形に変換して値を返す。勤怠チュートリアル5.5.4-->
     </div>

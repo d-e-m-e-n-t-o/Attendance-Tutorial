@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rails',        '~> 5.1.6'
+gem 'rails-i18n' # アプリケーションの日本語化や国際化をしてくれる。
 gem 'bcrypt' # 安全にユーザーパスワードを保管するため、暗号化してくれるらしい
 gem 'faker' # 存在していそうな名前を生成してくれるらしい
 gem 'bootstrap-sass'
