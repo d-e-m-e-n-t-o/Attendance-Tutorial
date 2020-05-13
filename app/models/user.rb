@@ -6,6 +6,7 @@ class User < ApplicationRecord
   before_save { self.email = email.downcase } # メールアドレスの大文字小文字を区別せず小文字として登録。
   #　before_saveメソッドに現在のメールアドレス（self.email）の値をdowncaseメソッドを使って小文字に変換。
   validates :name, presence: true, length: { maximum: 50 }# maximumは最大文字数制限
+  # presence: trueで未入力を阻止。
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   # この↑正規表現でメールアドレスのフォーマットを検証出来る。
   # つまり 効なメールアドレスにだけマッチし、無効となるメールアドレスではマッチしなくなる。
@@ -14,19 +15,27 @@ class User < ApplicationRecord
                     # formatオプションは引数に正規表現(VALID_EMAIL_REGEX)を指定
                     uniqueness: true
                     # uniqueness: trueは一意性の検証を行っている。一意とは(他に同じデータがない)ということ
+  validates :department, length: { in: 2..30 }, allow_blank: true
+  # in: 2..30は入力された文字が2文字以上３０文字以下。
+  # allow_blank: trueは対象の値がblank? => trueの場合にバリデーションをスキップ。つまり値が空文字""の
+  # 場合バリデーションをスルー
+  
+  validates :basic_time, presence: true
+  validates :work_time, presence: true
+  
 has_secure_password
 # Userモデル(schemaファイル)にpassword_digestカラムを追加し、bcryptをgemファイルに追加して使えるようになる
 # has_secure_passwordがやってくれること
 # ・モデルにpassword属性とpassword_confirmation属性の追加
 # ・それら属性のvalidation(存在性とそれら属性値の一致を検証)
 # ・authenticateメソッドの追加
-validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
-# minimumは最小文字数制限
-# ユーザー編集ページでパスワード未入力でも更新出来るよう、allow_nil: trueオプションを使う。対象の値が
-# nilの場合にバリデーションをスキップ出来る。has_secure_passwordがオブジェクト生成時に存在性を検証する
-# ようになっているので、問題なく動作する。
+  validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  # minimumは最小文字数制限
+  # ユーザー編集ページでパスワード未入力でも更新出来るよう、allow_nil: trueオプションを使う。対象の値が
+  # nilの場合にバリデーションをスキップ出来る。has_secure_passwordがオブジェクト生成時に存在性を検証する
+  # ようになっているので、問題なく動作する。
 
-# 。ハッシュ化する処理、渡された文字列のハッシュ値を返す。入れる値が同じなら、ハッシュ値も同じ
+  # ハッシュ化する処理、渡された文字列のハッシュ値を返す。入れる値が同じなら、ハッシュ値も同じ
   def User.digest(string)
     cost = 
       if ActiveModel::SecurePassword.min_cost
@@ -41,7 +50,7 @@ validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
     SecureRandom.urlsafe_base64
   end
   
-    # 永続セッションのためハッシュ化したトークンをデータベースに記憶します。
+  # 永続セッションのためハッシュ化したトークンをデータベースに記憶します。
   def remember
     self.remember_token = User.new_token
     # User.new_tokenで生成した「ランダムな文字列を」selfを用いてremember_tokenに代入している。

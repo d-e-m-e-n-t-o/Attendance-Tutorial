@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
-  before_action :logged_in_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
+  before_action :logged_in_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
   # before_actionメソッドで:show, :edit, :updateアクションのにlogged_in_userメソッドを実行する。
   before_action :correct_user, only: [:edit, :update]
-  before_action :admin_user, only: :destroy
+  before_action :admin_user, only: [:destroy, :edit_basic_info, :update_basic_info]
   
   def index
     @users = User.paginate(page: params[:page])
@@ -58,15 +58,32 @@ class UsersController < ApplicationController
     redirect_to users_url
   end
   
+  def edit_basic_info
+  end
+
+  def update_basic_info
+    if @user.update_attributes(basic_info_params)
+      flash[:success] = "#{@user.name}の基本情報を更新しました。"
+    else
+      flash[:danger] = "#{@user.name}の更新は失敗しました。<br>" + @user.errors.full_messages.join("<br>")
+      # full_messages.join("<br>")でエラーメッセージの配列の各要素を区切る際は<br>を使用するよう設定。
+    end
+      redirect_to users_url
+  end
+  
   private
   # 下記のuser_paramsメソッドはUsersコントローラの内部でのみ実行出来ればよいので、
   # privateキーワードを用いて外部からは使用できないようにする。
   # 悪質な攻撃によりアプリケーションのデータベースが書き換えられないように対策を取ることが目的
   
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    params.require(:user).permit(:name, :email, :department, :password, :password_confirmation)
     # paramsハッシュでは:userキーを必須とし:name, :email, :password, :password_confirmation
     # をそれぞれ許可しそれ以外は許可しない。:userキーがない場合はエラーになる。
+  end
+  
+  def basic_info_params
+  params.require(:user).permit(:department, :basic_time, :work_time)
   end
   
   # before_actionメソッドで使用するためのメソッド↓
@@ -94,8 +111,9 @@ class UsersController < ApplicationController
   end
   
   # システム管理権限所有かどうか判定します。
-    def admin_user
-      redirect_to root_url unless current_user.admin?
-    end
+  def admin_user
+    redirect_to root_url unless current_user.admin?
+  end
   
+
 end

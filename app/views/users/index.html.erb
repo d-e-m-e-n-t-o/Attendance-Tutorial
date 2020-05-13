@@ -8,20 +8,45 @@
     <thead>
       <tr>
         <th><%= User.human_attribute_name :name %></th>
+        <th class="center"><%= User.human_attribute_name :department %></th>
+        <% if current_user.admin? %>
+          <th class="center"><%= User.human_attribute_name :basic_time %></th>
+          <th class="center"><%= User.human_attribute_name :work_time %></th>
+        <% end %>
         <th></th>
       </tr>
     </thead>
-
+    <!--current_userのadminがtureの場合ユーザー一覧の氏名から個人の詳細ページに移動、そいでない場合
+    氏名だけ表示-->
     <% @users.each do |user| %>
       <tr>
-        <td><%= link_to user.name, user %></td>
         <td>
-          <% if current_user.admin? && !current_user?(user) %>
+          <% if current_user.admin? %>
+            <%= link_to user.name, user %>
+          <% else%>
+            <%= user.name%>
+          <% end %>
+        </td>
+        
+        <!--user.department(所属)の値を表示、値がnilの場合、未所属と表示-->
+        <td class="center"><%= user.department.present? ? user.department : "未所属" %></td>
+        
+        <!--current_userのadminがtureの場合、format_basic_infoメソッドを呼び出しuserテーブルの
+        basic_timeとwork_timeを引数に発動させ、戻り値を表示-->
+        <% if current_user.admin? %>
+          <td class="center"><%= format_basic_info(user.basic_time) %></td>
+          <td class="center"><%= format_basic_info(user.work_time) %></td>
+        <% end %>
+        <td class="center">
           <!--current_userのカラムadminがturuかつcurrent_user(ログイン中のユーザー)とuser(データベース
-          のユーザー)が同じ時否定演算子によりtureがfalseになりボタン自体が表示されない。-->
+          のユーザー)が同じ時否定演算子によりtureがfalseになりボタン自体が表示されない。ようは、
+          current_userのカラムadminがturuのユーザーがログインしている時、自分の欄に削除ボタンを表示
+          させない処理-->
+          <% if current_user.admin? && !current_user?(user) %>
+            <%= link_to "基本情報編集", edit_basic_info_user_path(user), remote: true, class: "btn btn-success" %>
+            <!--remote: trueオプションによってedit_basic_info.js.erbの処理が呼び出さる。-->
             <%= link_to "削除", user, method: :delete,
-                data: { confirm: "削除してよろしいですか？" },
-                class: "btn btn-danger" %>
+                data: { confirm: "削除してよろしいですか？" }, class: "btn btn-danger" %>
           <% end %>
        </td>
       </tr>
@@ -29,3 +54,7 @@
   </table>
   <%= will_paginate %>
 </div>
+
+<!--モーダルウインドウを表-->
+<!--idを指定し、edit_basic_info.js.erbと紐づけ。-->
+<div id="edit-basic-info" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

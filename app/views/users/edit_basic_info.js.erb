@@ -1,0 +1,4 @@
+<!--_edit_basic_info.html.erbパーシャルをレンダリング-->
+$("#edit-basic-info").html("<%= escape_javascript(render 'edit_basic_info') %>");
+<!--モーダルウインドウとして表示-->
+$("#edit-basic-info").modal("show");
