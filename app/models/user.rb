@@ -1,5 +1,11 @@
 class User < ApplicationRecord
   
+  has_many :attendances, dependent: :destroy
+  # has_many :attendances(複数持つので複数形)でUserモデルがAttendanceモデルに対して、1耐多の
+  # 関連性を示す。dependent: :destroyでユーザーが削除されたら、関連する勤怠データも同時に削除
+  #されるよう設定する。この追加でユーザーを削除したのにけ勤怠データがデータベースに残らないよう
+  # にしている。
+  
   # 「remember_token」という仮想の属性を作成します。
   attr_accessor :remember_token
   

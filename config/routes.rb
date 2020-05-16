@@ -21,6 +21,12 @@ Rails.application.routes.draw do
         get 'edit_basic_info'
         patch 'update_basic_info'
     end
+    resources :attendances, only: :update
+    # AttendancesリソースとしてはupdateアクションのみでOKなのでonlyオプションで指定することで、
+    # ルーティングを制限する。またUsersリソースのブロック内に記述しているため、設定される
+    # ルーティングはUsersが関連したものになる。これでparams[:user_id]でユーザーIDが取得できる。
   end
+  
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

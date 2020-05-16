@@ -4,6 +4,7 @@ class UsersController < ApplicationController
   # before_actionメソッドで:show, :edit, :updateアクションのにlogged_in_userメソッドを実行する。
   before_action :correct_user, only: [:edit, :update]
   before_action :admin_user, only: [:destroy, :edit_basic_info, :update_basic_info]
+  before_action :set_one_month, only: :show
   
   def index
     @users = User.paginate(page: params[:page])
@@ -13,7 +14,9 @@ class UsersController < ApplicationController
   end  
   
   def show
-    @user = User.find(params[:id])
+    @worked_sum = @attendances.where.not(started_at: nil).count
+    # @attendancesのstarted_atがnilではない要素を全て探し要素数を返して@worked_sumに入れる。
+    # whereメソッドは条件にマッチしたレコードを全て返す。
   end
   
   def new
