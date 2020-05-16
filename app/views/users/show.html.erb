@@ -22,7 +22,10 @@
   <!--この記述でdateをparamsハッシュのキーに指定できる。idはuser_pathによりRailsが
   自動的に判断してくれる。値に@first_day.prev_month指定しprev_monthは対象のDateオブジェクトの
   1ヶ月前の状態を返す。つまり前月の日付情報をパラメータで渡せる-->
+  <%= link_to "1ヶ月の勤怠編集へ", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-success" %>
   <%= link_to "次月へ ⇨", user_path(date: @first_day.next_month), class: "btn btn-info" %>
+  <!--受け取ったparams[:date]をもとに、どの月の情報を表示するか判断する為、paramsハッシュに
+  dateキーとして、@first_dayを指定している。-->
 </div>
 
 <div>
@@ -63,7 +66,7 @@
               <% @total_working_times = @total_working_times.to_f + str_times.to_f %>
             <% end %>
           </td>
-          <td></td>
+          <td><%= day.note %></td>
         </tr>
       <% end %>
     </tbody>

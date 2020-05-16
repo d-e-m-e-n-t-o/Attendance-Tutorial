@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
-  before_action :logged_in_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
+  before_action :logged_in_user, only: [:index, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
   # before_actionメソッドで:show, :edit, :updateアクションのにlogged_in_userメソッドを実行する。
   before_action :correct_user, only: [:edit, :update]
   before_action :admin_user, only: [:destroy, :edit_basic_info, :update_basic_info]
@@ -39,11 +39,11 @@ class UsersController < ApplicationController
   # webページから送信されたparamsハッシュのidを使ってユーザーテーブルを検索し、
   # ヒットしたルートをを@userに入れる。
   def edit
-    @user = User.find(params[:id])
+   # @user = User.find(params[:id])
   end
   
   def update
-    @user = User.find(params[:id])
+    # @user = User.find(params[:id])
     if @user.update_attributes(user_params)
       # update_attributesメソッドはrailsのモデルに備わっているメソッドでupdate_attributes(キー: 値, キー: 値 … )
       # のようにハッシュを引数に渡してデータベースのレコードを複数同時に更新することができるメソッド。
@@ -87,36 +87,8 @@ class UsersController < ApplicationController
   
   def basic_info_params
   params.require(:user).permit(:department, :basic_time, :work_time)
+  # 、、、11. 2 StrongParametersの応用を確認して、、、も分からないと思うけどｗ
+  
   end
-  
-  # before_actionメソッドで使用するためのメソッド↓
-  
-  # paramsハッシュからユーザーを取得します。
-  def set_user
-    @user = User.find(params[:id])
-  end
-  
-  # ユーザーがログインしているか確認する。
-  def logged_in_user
-      unless logged_in?
-      # unlessは条件式がfalseの場合のみ記述した処理が実行される。ifの逆やね！
-        store_location
-        flash[:danger] = "ログインしてください。"
-        redirect_to login_url
-      end
-  end
-  
-  # :edit, :updateアクションを実行するユーザーが現在ログインしているユーザーか確認する。
-  def correct_user
-      redirect_to(root_url) unless current_user?(@user)
-      # ここの@userはset_userメソッドで値を指定
-      
-  end
-  
-  # システム管理権限所有かどうか判定します。
-  def admin_user
-    redirect_to root_url unless current_user.admin?
-  end
-  
 
 end

@@ -12,6 +12,34 @@ class ApplicationController < ActionController::Base
   # %w{日 月 火 水 木 金 土}は["日", "月", "火", "水", "木", "金", "土"]と同じ意味、シンプルに書ける。
   # ページ出力前に1ヶ月分のデータの存在を確認・セットします。
   
+# before_actionメソッドで使用するためのメソッド↓
+  
+  # paramsハッシュからユーザーを取得します。
+  def set_user
+    @user = User.find(params[:id])
+  end
+  
+  # ユーザーがログインしているか確認する。
+  def logged_in_user
+    unless logged_in?
+    # unlessは条件式がfalseの場合のみ記述した処理が実行される。ifの逆やね！
+      store_location
+      flash[:danger] = "ログインしてください。"
+      redirect_to login_url
+    end
+  end
+  
+  # :edit, :updateアクションを実行するユーザーが現在ログインしているユーザーか確認する。
+  def correct_user
+    redirect_to(root_url) unless current_user?(@user)
+    # ここの@userはset_userメソッドで値を指定
+  end
+  
+  # システム管理権限所有かどうか判定します。
+  def admin_user
+    redirect_to root_url unless current_user.admin?
+  end
+  
   def set_one_month
     @first_day = params[:date].nil? ?
     Date.current.beginning_of_month : params[:date].to_date
@@ -39,23 +67,23 @@ class ApplicationController < ActionController::Base
     # countメソッドは対象のオブジェクトが配列の場合、要素数を返す。これにより、1ヶ月分の日付の件数と
     # 勤怠データの件数が一致するか検証している。
       ActiveRecord::Base.transaction do 
-        # transactionはまとめてデータを保存や更新するときに、全部成功したことを保証するための
-        # 機能で万が一途中で失敗した時は、エラー発生時専用のプログラム部分までスキップする。
+      # transactionはまとめてデータを保存や更新するときに、全部成功したことを保証するための
+      # 機能で万が一途中で失敗した時は、エラー発生時専用のプログラム部分までスキップする。
         one_month.each { |day| @user.attendances.create!(worked_on: day) }
         # one_monthの日付データを１つずつブロック変数dayにいれて
         # @user.attendances.create!(worked_on: day)を実行している。
         # createメソッドによってworked_onに日付の値が入ったAttendanceモデルのデータが
         # 生成される。
       end
-       @attendances = @user.attendances.where(worked_on: @first_day..@last_day).order(:worked_on)
-       # ここでも@attendancesを定義している、これは実際に日付データを繰り返し処理で生成した後にも、
-       # 正しく@attendances変数に値が代入されるようにするため。orderメソッドは取得したデータを
-       # 並び替えるメソッドでorder(:worked_on)で取得したAttendanceモデルの配列をworked_onの値を
-       # もとに昇順に並び替える。
+        @attendances = @user.attendances.where(worked_on: @first_day..@last_day).order(:worked_on)
+        # ここでも@attendancesを定義している、これは実際に日付データを繰り返し処理で生成した後にも、
+        # 正しく@attendances変数に値が代入されるようにするため。orderメソッドは取得したデータを
+        # 並び替えるメソッドでorder(:worked_on)で取得したAttendanceモデルの配列をworked_onの値を
+        # もとに昇順に並び替える。
     end
 
   # トランザクションによるエラーの分岐です。
-  rescue ActiveRecord::RecordInvalid # トランザクションによるエラーの分岐です。
+  rescue ActiveRecord::RecordInvalid
     flash[:danger] = "ページ情報の取得に失敗しました、再アクセスしてください。"
     redirect_to root_url
   end

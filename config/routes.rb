@@ -20,6 +20,9 @@ Rails.application.routes.draw do
     member do
         get 'edit_basic_info'
         patch 'update_basic_info'
+        get 'attendances/edit_one_month'
+        # コントローラーをattendancesとする為、記述を追加。
+        patch 'attendances/update_one_month'
     end
     resources :attendances, only: :update
     # AttendancesリソースとしてはupdateアクションのみでOKなのでonlyオプションで指定することで、
